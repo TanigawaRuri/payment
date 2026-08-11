@@ -28,6 +28,11 @@ public enum ErrorCode {
         "Reward event is disabled."
     ),
 
+    CONCURRENT_WORK(
+        HttpStatus.BAD_REQUEST,
+        "transaction is asked concurrently."
+    ),
+
     INVALID_TOKEN(
         HttpStatus.UNAUTHORIZED,
         "Invalid JWT token."
@@ -36,6 +41,11 @@ public enum ErrorCode {
     UNAUTHORIZED(
         HttpStatus.UNAUTHORIZED,
         "Authentication is required."
+    ),
+
+    INVALID_CREDENTIALS(
+        HttpStatus.UNAUTHORIZED,
+        "Email or Password is wrong."
     ),
 
     FORBIDDEN(

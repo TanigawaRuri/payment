@@ -1,25 +1,29 @@
 package com.tanigawa.rewardplatform.reward.controller;
 
-import com.tanigawa.rewardplatform.reward.service.RewardEventService;
-import com.tanigawa.rewardplatform.reward.dto.response.RewardEventResponse;
-import com.tanigawa.rewardplatform.reward.dto.request.RewardEventRequest;
-import com.tanigawa.rewardplatform.reward.dto.request.RewardHistoryRequest;
-import com.tanigawa.rewardplatform.reward.dto.response.RewardHistoryResponse;
+import java.util.List;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import lombok.RequiredArgsConstructor;
-import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.tanigawa.rewardplatform.exception.WrongEmailOrPasswordException;
+import com.tanigawa.rewardplatform.reward.dto.request.RewardEventRequest;
+import com.tanigawa.rewardplatform.reward.dto.request.RewardHistoryRequest;
+import com.tanigawa.rewardplatform.reward.dto.response.RewardEventResponse;
+import com.tanigawa.rewardplatform.reward.dto.response.RewardHistoryResponse;
+import com.tanigawa.rewardplatform.reward.service.RewardEventService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reward-events")
+@RequestMapping("/api/reward-events")
 public class RewardEventController {
 
     private final RewardEventService rewardEventService;
@@ -30,6 +34,7 @@ public class RewardEventController {
     }
     
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public RewardEventResponse createEvent(
         @Valid @RequestBody RewardEventRequest request
     ) {
@@ -37,9 +42,10 @@ public class RewardEventController {
     }
 
     @PostMapping("/claims")
+    @ResponseStatus(HttpStatus.CREATED)
     public RewardHistoryResponse claimReward(
         @AuthenticationPrincipal Long userId,
-        @RequestBody RewardHistoryRequest request
+        @Valid @RequestBody RewardHistoryRequest request
     ) {
         return rewardEventService.claimReward(userId, request);
     }

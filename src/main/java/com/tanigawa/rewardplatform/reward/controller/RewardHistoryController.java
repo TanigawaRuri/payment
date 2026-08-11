@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reward-histories")    
+@RequestMapping("/api/reward-histories")    
 public class RewardHistoryController {
     
     private final RewardHistoryService rewardHistoryService;

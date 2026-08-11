@@ -25,6 +25,9 @@ public class Wallet {
     @Column(nullable = false)
     private Long balance = 0L;
 
+    @Version
+    private Long version;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

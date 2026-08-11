@@ -21,7 +21,6 @@ import com.tanigawa.rewardplatform.reward.repository.RewardEventRepository;
 import com.tanigawa.rewardplatform.reward.repository.RewardHistoryRepository;
 import com.tanigawa.rewardplatform.user.entity.User;
 import com.tanigawa.rewardplatform.user.repository.UserRepository;
-import com.tanigawa.rewardplatform.wallet.entity.Wallet;
 import com.tanigawa.rewardplatform.wallet.repository.WalletRepository;
 
 //disabled event claim affects to the wallet balance?

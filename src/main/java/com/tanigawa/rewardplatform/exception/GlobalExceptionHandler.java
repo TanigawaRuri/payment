@@ -1,11 +1,12 @@
 package com.tanigawa.rewardplatform.exception;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,7 +23,6 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
-
 
     @ExceptionHandler(RewardEventNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRewardEventNotFound(
@@ -78,12 +78,12 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
-
-@ExceptionHandler(RewardHistoryNotFoundException.class)
-public ResponseEntity<ErrorResponse> handleRewardHistoryNotFound(
+    
+    @ExceptionHandler(RewardHistoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRewardHistoryNotFound(
                 RewardHistoryNotFoundException e
         ) {
-        return ResponseEntity
+                return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(
                         "REWARD_HISTORY_NOT_FOUND",
@@ -91,4 +91,30 @@ public ResponseEntity<ErrorResponse> handleRewardHistoryNotFound(
                         LocalDateTime.now()
                 ));
         }
+
+        @ExceptionHandler(WrongEmailOrPasswordException.class)
+        public ResponseEntity<ErrorResponse> handleWrongEmailOrPassword(
+                        WrongEmailOrPasswordException e
+                ) {
+                        return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse(
+                                "WRONG_EMAIL_OR_PASSWORD",
+                                "email or password is wrong",
+                                LocalDateTime.now()
+                        ));
+                }
+
+        @ExceptionHandler(WalletConflictException.class)
+        public ResponseEntity<ErrorResponse> handleWWalletConflict(
+                        WalletConflictException e
+                ) {
+                        return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse(
+                                "CONCURRENT_WORK",
+                                "transaction is asked concurrently.",
+                                LocalDateTime.now()
+                        ));
+                }
 }
