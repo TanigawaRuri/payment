@@ -18,12 +18,14 @@ import com.tanigawa.rewardplatform.reward.dto.response.RewardEventResponse;
 import com.tanigawa.rewardplatform.reward.dto.response.RewardHistoryResponse;
 import com.tanigawa.rewardplatform.reward.service.RewardEventService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reward-events")
+@Tag(name = "Rewards", description = "Reward event management endpoints")
 public class RewardEventController {
 
     private final RewardEventService rewardEventService;
