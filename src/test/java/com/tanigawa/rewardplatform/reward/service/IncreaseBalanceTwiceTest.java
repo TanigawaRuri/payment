@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,8 @@ import com.tanigawa.rewardplatform.exception.WalletConflictException;
 import com.tanigawa.rewardplatform.reward.dto.request.RewardHistoryRequest;
 import com.tanigawa.rewardplatform.reward.entity.RewardEvent;
 import com.tanigawa.rewardplatform.reward.repository.RewardEventRepository;
+import com.tanigawa.rewardplatform.user.entity.User;
+import com.tanigawa.rewardplatform.user.repository.UserRepository;
 import com.tanigawa.rewardplatform.wallet.entity.Wallet;
 import com.tanigawa.rewardplatform.wallet.repository.WalletRepository;
 
@@ -32,11 +35,49 @@ class IncreaseBalanceTwiceTest {
     @Autowired
     private RewardEventRepository rewardEventRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private User user;
+    private RewardEvent eventA;
+    private RewardEvent eventB;
+
+    @BeforeEach
+    void setUp() {
+        user = userRepository.save(
+            User.builder()
+                .nickname("concurrency_tester")
+                .email("concurrency-test-" + UUID.randomUUID() + "@test.com")
+                .encodedPassword("password")
+                .build()
+        );
+
+        walletRepository.save(new Wallet(user));
+
+        eventA = rewardEventRepository.save(
+            RewardEvent.builder()
+                .name("CONCURRENT_TEST_A_" + UUID.randomUUID())
+                .description("Concurrency test event A")
+                .rewardAmount(100L)
+                .enabled(true)
+                .build()
+        );
+
+        eventB = rewardEventRepository.save(
+            RewardEvent.builder()
+                .name("CONCURRENT_TEST_B_" + UUID.randomUUID())
+                .description("Concurrency test event B")
+                .rewardAmount(200L)
+                .enabled(true)
+                .build()
+        );
+    }
+
     @Test
     void concurrentClaimsShouldNotLoseUpdates() throws InterruptedException {
-        Long userId = 2L;
-        Long eventIdA = 2L;
-        Long eventIdB = 3L;
+        Long userId = user.getId();
+        Long eventIdA = eventA.getId();
+        Long eventIdB = eventB.getId();
 
         RewardHistoryRequest rewardHistoryRequestA = new RewardHistoryRequest(eventIdA, UUID.randomUUID());
         RewardHistoryRequest rewardHistoryRequestB = new RewardHistoryRequest(eventIdB, UUID.randomUUID());
@@ -44,9 +85,6 @@ class IncreaseBalanceTwiceTest {
         Wallet walletBefore = walletRepository.findByUserId(userId).orElseThrow();
 
         long initialBalance = walletBefore.getBalance();
-
-        RewardEvent eventA = rewardEventRepository.findById(eventIdA).orElseThrow();
-        RewardEvent eventB = rewardEventRepository.findById(eventIdB).orElseThrow();
 
         long rewardAmountA = eventA.getRewardAmount();
         long rewardAmountB = eventB.getRewardAmount();
@@ -69,6 +107,8 @@ class IncreaseBalanceTwiceTest {
                 successCount.incrementAndGet();
             } catch (WalletConflictException e) {
                 conflictCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 doneLatch.countDown();
             }
@@ -82,6 +122,8 @@ class IncreaseBalanceTwiceTest {
                 successCount.incrementAndGet();
             } catch (WalletConflictException e) {
                 conflictCount.incrementAndGet();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 doneLatch.countDown();
             }
@@ -93,7 +135,7 @@ class IncreaseBalanceTwiceTest {
 
             readyLatch.await();
             startLatch.countDown();
-            doneLatch.await();  
+            doneLatch.await();
         } finally {
             executor.shutdown();
         }

@@ -89,6 +89,8 @@ public class RewardEventService {
 
             wallet.increaseBalance(event.getRewardAmount());
 
+            walletRepository.saveAndFlush(wallet);
+
             return RewardHistoryResponse.from(savedHistory);
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new WalletConflictException("지갑 잔액이 동시에 변경되어 처리하지 못했습니다. 다시 시도해주세요.");
